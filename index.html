@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  PROJETO GIOVANA - SISTEMA DO BRECHO
+  ============================================================================
+  COMO ABRIR: dois cliques neste arquivo. Ele abre no navegador.
+  Nao precisa instalar nada e nao precisa de internet.
+
+  COMO A TELA E ORGANIZADA:
+  - Do lado ESQUERDO fica o menu fixo, com as tres opcoes do sistema.
+  - Do lado DIREITO aparece o conteudo da opcao escolhida.
+
+  AS TRES TELAS:
+  1) Visao geral -> so o resumo (quantas pecas, quantos clientes, valor total)
+  2) Produtos    -> cadastra a peca; cada peca vira uma ETIQUETA na vitrine
+  3) Clientes    -> cadastra o cliente; vira uma fichinha na lista
+
+  AS 3 PARTES DE UM ARQUIVO HTML (e so isso, de verdade):
+  HTML = o esqueleto (o que aparece na tela)
+  CSS  = a aparencia (cores, tamanhos, espacos; fica na etiqueta de estilo)
+  JS   = o cerebro (o que acontece ao clicar num botao; fica no fim do arquivo)
+
+  Todo texto dentro de um comentario como este e explicacao pra gente:
+  o computador ignora.
+  ============================================================================
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brecho da Giovanna</title>
+
+  <!-- ==================== A APARENCIA (CSS) ==================== -->
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body { background:#faf7f2; color:#473f38; display:flex; min-height:100vh;
+           font-family:"Trebuchet MS", Verdana, sans-serif; }
+
+    /* ---------- MENU LATERAL FIXO (lado esquerdo) ---------- */
+    .lateral { width:215px; background:#fffdfa; border-right:1px solid #e8dfd2;
+               padding:26px 0; flex-shrink:0; }
+    .lateral .marca { padding:0 22px 22px; border-bottom:1px solid #e8dfd2; }
+    .lateral .marca h1 { font-family:Georgia, "Times New Roman", serif;
+                         font-size:21px; color:#8a6a4f; line-height:1.2; }
+    .lateral .marca p { font-size:11px; letter-spacing:2px; text-transform:uppercase;
+                        color:#b6a692; margin-top:6px; }
+
+    /* Cada item do menu e um botao de largura total */
+    .lateral button { display:block; width:100%; text-align:left; background:none;
+                      border:none; border-left:4px solid transparent;
+                      padding:14px 22px; font-size:14px; color:#6f6256;
+                      cursor:pointer; font-family:inherit; }
+    .lateral button:hover { background:#f6f1e9; }
+    .lateral button.ativo { border-left-color:#8a6a4f; background:#f3ece2;
+                            color:#8a6a4f; font-weight:bold; }
+    .lateral .rodape { padding:18px 22px; font-size:11px; color:#c2b5a4; margin-top:20px; }
+
+    /* ---------- AREA DE CONTEUDO (lado direito) ---------- */
+    .conteudo { flex:1; padding:34px 38px; max-width:860px; }
+    .conteudo h2 { font-family:Georgia, serif; font-size:25px; color:#8a6a4f;
+                   font-weight:normal; margin-bottom:4px; }
+    .conteudo .sub { font-size:13px; color:#a2937f; margin-bottom:26px; }
+
+    .bloco { margin-bottom:34px; }
+    .bloco h3 { font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
+                color:#b6a692; margin-bottom:14px;
+                border-bottom:1px solid #e8dfd2; padding-bottom:8px; }
+
+    /* ---------- FORMULARIOS ---------- */
+    /* Os campos ficam lado a lado, em linha, para ocupar menos espaco */
+    .linha { display:flex; gap:12px; flex-wrap:wrap; }
+    .campo { flex:1; min-width:140px; }
+    label { display:block; font-size:11px; letter-spacing:0.5px; text-transform:uppercase;
+            color:#a2937f; margin-bottom:5px; }
+    input, select { width:100%; padding:10px 12px; font-size:14px; font-family:inherit;
+                    background:#fff; border:1px solid #e0d5c5; border-radius:3px;
+                    color:#473f38; margin-bottom:14px; }
+
+    .botao { background:#8a6a4f; color:#fff; border:none; padding:11px 24px;
+             font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
+             cursor:pointer; font-family:inherit; border-radius:3px; }
+    .botao:hover { background:#6f5440; }
+
+    /* ---------- A VITRINE DE PECAS (etiquetas, nao tabela) ---------- */
+    /* "grid" organiza as etiquetas em colunas que se ajustam sozinhas */
+    .vitrine { display:grid; grid-template-columns:repeat(auto-fill, minmax(185px, 1fr));
+               gap:14px; }
+    .etiqueta { background:#fff; border:1px solid #e8dfd2; border-radius:3px;
+                padding:15px; position:relative; }
+    /* O furinho da etiqueta de roupa, so pra enfeitar */
+    .etiqueta:before { content:""; position:absolute; top:12px; right:12px;
+                       width:9px; height:9px; border:2px solid #e0d5c5; border-radius:50%; }
+    .etiqueta .cat { font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+                     color:#b6a692; }
+    .etiqueta .nome { font-family:Georgia, serif; font-size:16px; margin:7px 0; }
+    .etiqueta .tam { font-size:12px; color:#a2937f; }
+    .etiqueta .preco { font-size:19px; color:#8a6a4f; margin-top:10px; }
+    .etiqueta .remover { background:none; border:none; color:#c2b5a4; font-size:11px;
+                         text-decoration:underline; cursor:pointer; margin-top:8px;
+                         padding:0; font-family:inherit; }
+
+    /* ---------- FICHAS DE CLIENTE ---------- */
+    .ficha { display:flex; align-items:center; gap:14px; background:#fff;
+             border:1px solid #e8dfd2; border-radius:3px; padding:13px 16px; margin-bottom:9px; }
+    /* A bolinha com a primeira letra do nome */
+    .ficha .inicial { width:36px; height:36px; border-radius:50%; background:#f3ece2;
+                      color:#8a6a4f; font-family:Georgia, serif; font-size:17px;
+                      display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ficha .dados { flex:1; }
+    .ficha .dados .n { font-size:15px; }
+    .ficha .dados .c { font-size:12px; color:#a2937f; margin-top:2px; }
+
+    /* ---------- OS NUMEROS DA VISAO GERAL ---------- */
+    .numeros { display:flex; gap:16px; flex-wrap:wrap; }
+    .numero { flex:1; min-width:150px; background:#fff; border:1px solid #e8dfd2;
+              border-radius:3px; padding:22px; }
+    .numero .valor { font-family:Georgia, serif; font-size:31px; color:#8a6a4f; }
+    .numero .texto { font-size:11px; letter-spacing:1px; text-transform:uppercase;
+                     color:#b6a692; margin-top:6px; }
+    .recado { background:#f3ece2; border-left:4px solid #c9b79e; padding:16px 18px;
+              font-size:14px; line-height:1.7; border-radius:0 3px 3px 0; }
+
+    /* Classe usada pelo cerebro pra esconder as telas que nao estao abertas */
+    .escondido { display:none; }
+    .vazio { font-size:13px; color:#c2b5a4; font-style:italic; }
+
+    /* No celular o menu passa pra cima, em vez de ficar do lado */
+    @media (max-width:700px) {
+      body { flex-direction:column; }
+      .lateral { width:100%; border-right:none; border-bottom:1px solid #e8dfd2; padding:18px 0; }
+      .conteudo { padding:24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================= O ESQUELETO (HTML) ======================= -->
+
+<!-- ---------- MENU LATERAL ---------- -->
+<!-- onclick = "quando clicar, chame esta funcao do cerebro" -->
+<div class="lateral">
+  <div class="marca">
+    <h1>Brecho da<br>Giovanna</h1>
+    <p>Controle da loja</p>
+  </div>
+  <button id="btn-visao" class="ativo" onclick="abrirPagina('visao')">Visao geral</button>
+  <button id="btn-produtos" onclick="abrirPagina('produtos')">Produtos</button>
+  <button id="btn-clientes" onclick="abrirPagina('clientes')">Clientes</button>
+  <div class="rodape">Os dados ficam salvos<br>neste computador.</div>
+</div>
+
+<!-- ---------- AREA DE CONTEUDO ---------- -->
+<div class="conteudo">
+
+  <!-- ================= TELA 1: VISAO GERAL (so resumo) ================= -->
+  <section id="pagina-visao">
+    <h2>Visao geral</h2>
+    <p class="sub">Resumo da loja. Aqui nao se cadastra nada.</p>
+
+    <div class="numeros">
+      <!-- Os numeros sao escritos pelo cerebro -->
+      <div class="numero"><div class="valor" id="total-produtos">0</div><div class="texto">Pecas no estoque</div></div>
+      <div class="numero"><div class="valor" id="total-clientes">0</div><div class="texto">Clientes cadastrados</div></div>
+      <div class="numero"><div class="valor" id="valor-estoque">R$ 0</div><div class="texto">Valor do estoque</div></div>
+    </div>
+
+    <div class="bloco" style="margin-top:30px">
+      <h3>Resumo</h3>
+      <div class="recado" id="texto-resumo">Carregando...</div>
+    </div>
+  </section>
+
+  <!-- ================= TELA 2: PRODUTOS ================= -->
+  <section id="pagina-produtos" class="escondido">
+    <h2>Produtos</h2>
+    <p class="sub">Cadastre as pecas da loja. Cada peca vira uma etiqueta na vitrine.</p>
+
+    <div class="bloco">
+      <h3>Cadastrar peca</h3>
+
+      <!-- Os campos ficam dois por linha -->
+      <div class="linha">
+        <div class="campo">
+          <label>Nome da peca</label>
+          <!-- O "id" e o nome do campo: e assim que o cerebro acha ele -->
+          <input type="text" id="produto-nome" placeholder="Jaqueta jeans">
+        </div>
+        <div class="campo">
+          <label>Categoria</label>
+          <!-- "select" e a listinha de opcoes -->
+          <select id="produto-categoria">
+            <option>Camiseta</option>
+            <option>Calca</option>
+            <option>Vestido</option>
+            <option>Jaqueta</option>
+            <option>Sapato</option>
+            <option>Acessorio</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="linha">
+        <div class="campo">
+          <label>Tamanho</label>
+          <input type="text" id="produto-tamanho" placeholder="M, 38, Unico">
+        </div>
+        <div class="campo">
+          <label>Preco (R$)</label>
+          <!-- type="number" so aceita numeros -->
+          <input type="number" id="produto-preco" placeholder="49.90" step="0.01">
+        </div>
+      </div>
+
+      <button class="botao" onclick="cadastrarProduto()">Cadastrar peca</button>
+    </div>
+
+    <div class="bloco">
+      <h3>Vitrine</h3>
+      <!-- Comeca vazio: o cerebro escreve as etiquetas aqui dentro -->
+      <div class="vitrine" id="lista-produtos"></div>
+    </div>
+  </section>
+
+  <!-- ================= TELA 3: CLIENTES ================= -->
+  <section id="pagina-clientes" class="escondido">
+    <h2>Clientes</h2>
+    <p class="sub">Cadastre quem compra na loja.</p>
+
+    <div class="bloco">
+      <h3>Cadastrar cliente</h3>
+      <div class="linha">
+        <div class="campo">
+          <label>Nome</label>
+          <input type="text" id="cliente-nome" placeholder="Maria Souza">
+        </div>
+        <div class="campo">
+          <label>Telefone</label>
+          <input type="text" id="cliente-telefone" placeholder="(65) 99999-0000">
+        </div>
+        <div class="campo">
+          <label>Cidade</label>
+          <input type="text" id="cliente-cidade" placeholder="Cuiaba">
+        </div>
+      </div>
+      <button class="botao" onclick="cadastrarCliente()">Cadastrar cliente</button>
+    </div>
+
+    <div class="bloco">
+      <h3>Lista de clientes</h3>
+      <div id="lista-clientes"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ======================= O CEREBRO (JavaScript) =======================
+     Cada funcao faz UMA coisa. Leia o comentario de cada uma.
+  ================================================================== -->
+<script>
+
+  /* ------------------------------------------------------------------
+     1) ONDE OS DADOS FICAM
+     ------------------------------------------------------------------
+     Duas listas (em programacao se chamam "arrays"). Pense em duas
+     caixas vazias: uma guarda as pecas, a outra os clientes.
+  ------------------------------------------------------------------ */
+  let produtos = [];
+  let clientes = [];
+
+  /* O navegador tem uma memoria propria (localStorage). Usamos ela pra
+     nao perder nada quando a pagina e fechada. */
+  function salvarNaMemoria() {
+    localStorage.setItem('brecho_produtos', JSON.stringify(produtos));
+    localStorage.setItem('brecho_clientes', JSON.stringify(clientes));
+  }
+
+  /* Faz o contrario: busca de volta o que estava salvo. */
+  function carregarDaMemoria() {
+    const p = localStorage.getItem('brecho_produtos');
+    const c = localStorage.getItem('brecho_clientes');
+    if (p) { produtos = JSON.parse(p); }    /* "if" quer dizer "SE" */
+    if (c) { clientes = JSON.parse(c); }
+  }
+
+  /* ------------------------------------------------------------------
+     2) TROCAR DE TELA (os tres botoes do menu lateral)
+     ------------------------------------------------------------------
+     As tres telas existem ao mesmo tempo no arquivo. O truque e
+     esconder todas e mostrar so a que foi clicada.
+  ------------------------------------------------------------------ */
+  function abrirPagina(nome) {
+    /* esconde as tres telas */
+    document.getElementById('pagina-visao').classList.add('escondido');
+    document.getElementById('pagina-produtos').classList.add('escondido');
+    document.getElementById('pagina-clientes').classList.add('escondido');
+
+    /* apaga o destaque dos tres botoes do menu */
+    document.getElementById('btn-visao').classList.remove('ativo');
+    document.getElementById('btn-produtos').classList.remove('ativo');
+    document.getElementById('btn-clientes').classList.remove('ativo');
+
+    /* mostra SO a tela escolhida e destaca SO o botao dela */
+    document.getElementById('pagina-' + nome).classList.remove('escondido');
+    document.getElementById('btn-' + nome).classList.add('ativo');
+
+    if (nome === 'visao') { atualizarVisaoGeral(); }
+  }
+
+  /* ------------------------------------------------------------------
+     3) CADASTRAR UMA PECA
+     ------------------------------------------------------------------
+     a) pega o que foi digitado em cada campo
+     b) confere se o nome e o preco foram preenchidos
+     c) empurra a peca para dentro da lista
+     d) salva, limpa os campos e redesenha a vitrine
+  ------------------------------------------------------------------ */
+  function cadastrarProduto() {
+    /* (a) ".value" e "o que a pessoa digitou neste campo" */
+    const nome      = document.getElementById('produto-nome').value;
+    const categoria = document.getElementById('produto-categoria').value;
+    const tamanho   = document.getElementById('produto-tamanho').value;
+    const preco     = document.getElementById('produto-preco').value;
+
+    /* (b) se faltou algo, avisa e PARA aqui (o "return" interrompe) */
+    if (nome === '' || preco === '') {
+      alert('Preencha ao menos o nome e o preco da peca.');
+      return;
+    }
+
+    /* (c) ".push" = empurrar pra dentro da lista. Number() vira numero. */
+    produtos.push({ nome:nome, categoria:categoria, tamanho:tamanho, preco:Number(preco) });
+
+    /* (d) */
+    salvarNaMemoria();
+    document.getElementById('produto-nome').value = '';
+    document.getElementById('produto-tamanho').value = '';
+    document.getElementById('produto-preco').value = '';
+    mostrarProdutos();
+  }
+
+  /* ------------------------------------------------------------------
+     4) DESENHAR A VITRINE
+     ------------------------------------------------------------------
+     Monta uma etiqueta na tela para CADA peca da lista.
+  ------------------------------------------------------------------ */
+  function mostrarProdutos() {
+    const area = document.getElementById('lista-produtos');
+
+    /* .length = quantidade de itens da lista */
+    if (produtos.length === 0) {
+      area.innerHTML = '<p class="vazio">Nenhuma peca cadastrada ainda.</p>';
+      return;
+    }
+
+    let html = '';
+    /* o "for" repete este bloco uma vez para CADA peca */
+    for (let i = 0; i < produtos.length; i++) {
+      html += '<div class="etiqueta">';
+      html +=   '<div class="cat">' + produtos[i].categoria + '</div>';
+      html +=   '<div class="nome">' + produtos[i].nome + '</div>';
+      html +=   '<div class="tam">Tamanho: ' + (produtos[i].tamanho || '-') + '</div>';
+      html +=   '<div class="preco">R$ ' + produtos[i].preco.toFixed(2) + '</div>';  /* 2 casas */
+      html +=   '<button class="remover" onclick="excluirProduto(' + i + ')">remover</button>';
+      html += '</div>';
+    }
+
+    /* innerHTML = "escreva isto dentro desta area da tela" */
+    area.innerHTML = html;
+  }
+
+  /* Apaga UMA peca. splice(i,1) = "na posicao i, remova 1 item". */
+  function excluirProduto(i) {
+    produtos.splice(i, 1);
+    salvarNaMemoria();
+    mostrarProdutos();
+  }
+
+  /* ------------------------------------------------------------------
+     5) CLIENTES (mesma logica das pecas)
+  ------------------------------------------------------------------ */
+  function cadastrarCliente() {
+    const nome     = document.getElementById('cliente-nome').value;
+    const telefone = document.getElementById('cliente-telefone').value;
+    const cidade   = document.getElementById('cliente-cidade').value;
+
+    if (nome === '') {
+      alert('Preencha o nome do cliente.');
+      return;
+    }
+
+    clientes.push({ nome:nome, telefone:telefone, cidade:cidade });
+
+    salvarNaMemoria();
+    document.getElementById('cliente-nome').value = '';
+    document.getElementById('cliente-telefone').value = '';
+    document.getElementById('cliente-cidade').value = '';
+    mostrarClientes();
+  }
+
+  function mostrarClientes() {
+    const area = document.getElementById('lista-clientes');
+
+    if (clientes.length === 0) {
+      area.innerHTML = '<p class="vazio">Nenhum cliente cadastrado ainda.</p>';
+      return;
+    }
+
+    let html = '';
+    for (let i = 0; i < clientes.length; i++) {
+      /* charAt(0) pega a primeira letra do nome, pra bolinha da ficha */
+      const letra = clientes[i].nome.charAt(0).toUpperCase();
+
+      html += '<div class="ficha">';
+      html +=   '<div class="inicial">' + letra + '</div>';
+      html +=   '<div class="dados">';
+      html +=     '<div class="n">' + clientes[i].nome + '</div>';
+      html +=     '<div class="c">' + (clientes[i].telefone || 'sem telefone') +
+                  ' - ' + (clientes[i].cidade || 'cidade nao informada') + '</div>';
+      html +=   '</div>';
+      html +=   '<button class="remover" onclick="excluirCliente(' + i + ')">remover</button>';
+      html += '</div>';
+    }
+    area.innerHTML = html;
+  }
+
+  function excluirCliente(i) {
+    clientes.splice(i, 1);
+    salvarNaMemoria();
+    mostrarClientes();
+  }
+
+  /* ------------------------------------------------------------------
+     6) A VISAO GERAL
+     ------------------------------------------------------------------
+     Aqui nao se cadastra nada: so contamos o que ja existe e somamos
+     o preco de todas as pecas.
+  ------------------------------------------------------------------ */
+  function atualizarVisaoGeral() {
+    let soma = 0;
+    for (let i = 0; i < produtos.length; i++) {
+      soma = soma + produtos[i].preco;
+    }
+
+    document.getElementById('total-produtos').innerText = produtos.length;
+    document.getElementById('total-clientes').innerText = clientes.length;
+    document.getElementById('valor-estoque').innerText = 'R$ ' + soma.toFixed(2);
+
+    document.getElementById('texto-resumo').innerText =
+      'O brecho tem ' + produtos.length + ' peca(s) cadastrada(s) e ' +
+      clientes.length + ' cliente(s) na base. O valor total das pecas em ' +
+      'estoque e de R$ ' + soma.toFixed(2) + '.';
+  }
+
+  /* ------------------------------------------------------------------
+     7) O QUE RODA QUANDO A PAGINA ABRE
+  ------------------------------------------------------------------ */
+  carregarDaMemoria();
+  mostrarProdutos();
+  mostrarClientes();
+  atualizarVisaoGeral();
+
+</script>
+</body>
+</html>

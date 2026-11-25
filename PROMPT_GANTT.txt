@@ -1,0 +1,32 @@
+PROMPT PARA O CHATGPT GERAR A IMAGEM DO GRÁFICO DE GANTT
+(copie tudo abaixo e cole no ChatGPT pedindo a imagem)
+
+------------------------------------------------------------
+
+Gere uma IMAGEM de um gráfico de Gantt profissional, limpo e legível, em português do Brasil, com o título:
+
+"Sistema de Brechó — Cronograma do Projeto (25/10/2026 a 25/11/2026)"
+
+Formato: horizontal (paisagem), fundo branco, fonte sem serifa, alta resolução, paleta em tons de marrom/bege (tema brechó).
+Eixo horizontal: linha do tempo de 25/10/2026 até 25/11/2026, dividida em semanas com as datas visíveis (25/10, 01/11, 08/11, 15/11, 22/11, 25/11) e linhas verticais de grade claras.
+Eixo vertical: lista das tarefas, na mesma ordem abaixo, de cima para baixo.
+Cada tarefa é uma barra horizontal colorida posicionada exatamente nas datas indicadas, com o nome da responsável escrito ao lado direito da barra.
+Use uma cor diferente por responsável e inclua uma legenda de cores no canto inferior.
+
+TAREFAS (nome | início | fim | responsável):
+1. Definição do escopo e divisão de tarefas | 25/10 | 28/10 | Giovanna
+2. Levantamento das necessidades da loja | 26/10 | 30/10 | Daniela
+3. Definição dos dados de produto e cliente | 30/10 | 03/11 | Yasmin
+4. Criação do layout e identidade visual | 01/11 | 07/11 | Vitória Moraes
+5. Montagem das três telas em HTML | 05/11 | 12/11 | Vitória Moraes
+6. Cadastro de produtos (funcionamento) | 08/11 | 15/11 | Yasmin
+7. Cadastro de clientes (funcionamento) | 12/11 | 17/11 | Yasmin
+8. Tela de visão geral (resumo e totais) | 16/11 | 19/11 | Vitória Moraes
+9. Cadastro das peças reais no sistema | 18/11 | 21/11 | Daniela
+10. Testes de uso e ajustes finais | 20/11 | 22/11 | Giovanna e Daniela
+11. Documentação e roteiro de apresentação | 21/11 | 23/11 | Giovanna
+12. Apresentação final | 24/11 | 25/11 | Equipe toda
+
+MARCOS: desenhe pequenos losangos (diamantes) na linha do tempo em 03/11 ("Escopo e dados definidos"), 12/11 ("Telas prontas"), 19/11 ("Sistema funcionando") e 25/11 ("Entrega final").
+
+Importante: todos os textos devem estar legíveis e sem erros de ortografia, as barras devem respeitar exatamente as datas de início e fim, e nenhuma tarefa deve ficar fora do intervalo 25/10 a 25/11.
